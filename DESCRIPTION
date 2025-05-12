@@ -1,6 +1,6 @@
 Package: cheetahR
 Title: High Performance Tables Using 'Cheetah Grid'
-Version: 0.1.0
+Version: 0.2.0
 License: GPL (>= 3)
 Authors@R: c(
     person("Olajoke", "Oladipo", , "olajoke@cynkra.com", role = c("aut", "cre")),
@@ -18,14 +18,15 @@ Encoding: UTF-8
 RoxygenNote: 7.3.2
 Depends: R (>= 4.1.0)
 Imports: htmlwidgets, jsonlite, tibble
-Suggests: testthat (>= 3.0.0), utils, shiny, quarto, knitr, dplyr
+Suggests: testthat (>= 3.0.0), utils, shiny, quarto, knitr, dplyr,
+        palmerpenguins
 Config/testthat/edition: 3
 VignetteBuilder: quarto
 NeedsCompilation: no
-Packaged: 2025-04-16 12:54:04 UTC; olajoke
+Packaged: 2025-05-12 15:02:18 UTC; olajoke
 Author: Olajoke Oladipo [aut, cre],
   David Granjon [aut],
   cynkra GmbH [fnd]
 Maintainer: Olajoke Oladipo <olajoke@cynkra.com>
 Repository: CRAN
-Date/Publication: 2025-04-18 13:30:02 UTC
+Date/Publication: 2025-05-12 15:40:08 UTC
