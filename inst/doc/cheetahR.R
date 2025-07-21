@@ -1,6 +1,8 @@
 ## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
+  warning = FALSE,
+  message = FALSE,
   comment = "#>"
 )
 
@@ -188,8 +190,6 @@ cheetah(
 
 
 ## -----------------------------------------------------------------------------
-`%notin%` <- Negate('%in%')
-
 cheetah(
   data,
   columns = list(
@@ -305,6 +305,99 @@ cheetah(
 )
 
 
+## -----------------------------------------------------------------------------
+#| fig-height: 3
+numeric_data <- data.frame(
+  price_USD = c(125000.75, 299.99, 7890.45),
+  price_EUR = c(410.25, 18750.60, 1589342.80),
+  price_INR = c(2200.50, 134999.99, 945.75),
+  price_NGN = c(120000, 2100045, 1750),
+  liter = c(20, 35, 42),
+  percent = c(0.875, 0.642, 0.238)
+)
+
+cheetah(
+  numeric_data,
+  columns = list(
+    price_USD = column_def(
+      name = "USD",
+      column_type = number_format(
+        style = "currency",
+        currency = "USD"
+      )
+    ),
+    price_EUR = column_def(
+      name = "EUR",
+      column_type = number_format(
+        style = "currency",
+        currency = "EUR",
+        locales = "de-DE"
+      )
+    ),
+    price_INR = column_def(
+      name = "INR",
+      column_type = number_format(
+        style = "currency",
+        currency = "INR",
+        locales = "hi-IN"
+      )
+    ),
+    price_NGN = column_def(
+      name = "NGN",
+      column_type = number_format(
+        style = "currency",
+        currency = "NGN"
+      )
+    ),
+    liter = column_def(
+      name = "Liter",
+      column_type = number_format(
+        style = "unit",
+        unit = "liter",
+        unit_display = "long"
+      )
+    ),
+    percent = column_def(
+      name = "Percent",
+      column_type = number_format(style = "percent")
+    )
+  )
+)
+
+
+## -----------------------------------------------------------------------------
+#| fig-height: 3
+cheetah(
+  data.frame(
+    date = as.Date(c("2023-01-15", "2023-02-28", "2023-03-10")),
+    datetime = as.POSIXct(c(
+      "2023-01-15 09:30:00", 
+      "2023-02-28 14:45:00",
+      "2023-03-10 18:15:00"
+    ))
+  ),
+  columns = list(
+    date = column_def(
+      name = "Date",
+      column_type = date_format(
+        locales = "en-US",
+        month = "long",
+        day = "numeric",
+        year = "numeric"
+      )
+    ),
+    datetime = column_def(
+      name = "Date & Time",
+      column_type = date_format(
+        locales = "de-DE",
+        date_style = "full",
+        time_style = "medium"
+      )
+    )
+  )
+)
+
+
 ## ----eval=TRUE----------------------------------------------------------------
 cheetah(mtcars, rownames = FALSE, sortable = FALSE)
 
@@ -364,7 +457,130 @@ cheetah(
 
 
 ## -----------------------------------------------------------------------------
+# Define a named list of styles
+user_theme <- list(
+  color = "#2c3e50",
+  frozenRowsColor = "#2c3e50",
+  defaultBgColor = "#ecf0f1",
+  frozenRowsBgColor = "#bdc3c7",
+  selectionBgColor = "#d0ece7",
+  highlightBgColor = "#f9e79f",
+  underlayBackgroundColor = "#f4f6f7",
+  # This is also possible to change the theme apply in the state by using callback.
+  frozenRowsBorderColor = '
+  function(args) {
+   const { row, grid: { frozenRowCount } } = args;
+    if (frozenRowCount - 1 === row) {
+     return ["#7f8c8d", "#7f8c8d", "#34495e"];
+    } else {
+     return "#7f8c8d";
+    }
+  }',
+  borderColor = '
+  function(args) {
+   const { col, grid: { colCount } } = args;
+    if (colCount - 1 === col) {
+     return ["#34495e", "#7f8c8d", "#34495e", null];
+    } else {
+     return ["#34495e", null, "#34495e", null];
+    }
+  }',
+  highlightBorderColor = "#1abc9c",
+  checkbox = list(
+    uncheckBgColor = "#ecf0f1",
+    checkBgColor = "#1abc9c",
+    borderColor = "#16a085"
+  ),
+  font = "14px 'Helvetica Neue', sans-serif",
+  header = list(sortArrowColor = "#2980b9"),
+  messages = list(
+    infoBgColor = "#95a5a6",
+    errorBgColor = "#e74c3c",
+    warnBgColor = "#f1c40f",
+    boxWidth = 12,
+    markHeight = 15
+  )
+)
+
+
+## -----------------------------------------------------------------------------
+cheetah(
+  data,
+  theme = user_theme,
+  columns = list(
+    Check = column_def(
+      name = "",
+      column_type = "check",
+      action = "check",
+      message = add_cell_message(
+        message = js_ifelse(Check, if_false = "Please check.")
+      )
+    ),
+    Petal.Width = column_def(
+      action = "input",
+      style = list(textAlign = "center"),
+      message = add_cell_message(
+        type = "info",
+        message = js_ifelse(Petal.Width <= 1, "NarrowPetal", "WidePetal")
+      )
+    ),
+    Species = column_def(
+      action = "input",
+      message = add_cell_message(
+        type = "warning",
+        message = js_ifelse(!grepl("set", Species), "NoSet", "")
+      )
+    )
+  )
+)
+
+
+## -----------------------------------------------------------------------------
 cheetah(penguins, search = "contains")
+
+
+## -----------------------------------------------------------------------------
+# Disable resize effect in a cheetah table
+cheetah(penguins, search = "contains", disable_column_resize = TRUE)
+
+
+## -----------------------------------------------------------------------------
+# Freeze the first column
+cheetah(penguins, search = "contains", column_freeze = 1)
+
+
+## -----------------------------------------------------------------------------
+# Define default row height and column width
+cheetah(penguins, search = "contains", default_row_height = 30, default_col_width = 100)
+
+
+## -----------------------------------------------------------------------------
+# Define default row height for the header
+cheetah(penguins, search = "contains", header_row_height = 20)
+
+
+## -----------------------------------------------------------------------------
+# Define a default font setting for the table
+cheetah(penguins, search = "contains", font = "8px sans-serif")
+
+
+## -----------------------------------------------------------------------------
+# Make the table editable
+cheetah(penguins, search = "contains", editable = TRUE)
+
+
+## -----------------------------------------------------------------------------
+# Move cells on tab and delete cell values on with the Delete and BackSpace keys
+cheetah(
+  penguins,
+  search = "contains",
+  editable = TRUE,
+  keyboard_options =
+    list(
+      deleteCellValueOnDel = TRUE,
+      moveCellOnTab = TRUE
+    )
+)
 
 
 ## ----eval=FALSE---------------------------------------------------------------
