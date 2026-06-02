@@ -627,3 +627,69 @@ cheetah(
 # 
 # shinyApp(ui = ui, server = server)
 
+
+## ----eval=FALSE---------------------------------------------------------------
+# library(shiny)
+# library(cheetahR)
+# 
+# # Pool of values the user can pick from.
+# countries <- c(
+#   "Argentina", "Australia", "Brazil", "Canada", "Chile", "China",
+#   "Denmark", "Egypt", "France", "Germany", "Ghana", "India",
+#   "Indonesia", "Ireland", "Italy", "Japan", "Kenya", "Mexico",
+#   "Netherlands", "Nigeria", "Norway", "Portugal", "Spain", "Sweden",
+#   "Switzerland", "Uganda", "United Kingdom", "United States"
+# )
+# 
+# # Data must have a character `country` column for the autocomplete editor.
+# data <- data.frame(
+#   id = 1:6,
+#   country = c("France", "Germany", "Ghana", "India", "Italy", "Japan"),
+#   population_m = c(67, 84, 33, 1428, 59, 125),
+#   stringsAsFactors = FALSE
+# )
+# 
+# ui <- fluidPage(
+#   h4("Autocomplete editor"),
+#   helpText(
+#     "Click a cell in 'country', start typing to filter the suggestions,",
+#     "then press Enter (or Tab) to commit. Press Escape to cancel."
+#   ),
+#   cheetahOutput("grid"),
+#   h5("Last changed cell"),
+#   verbatimTextOutput("last_change"),
+#   h5("Current data state"),
+#   verbatimTextOutput("data_state")
+# )
+# 
+# server <- function(input, output, session) {
+#   output$grid <- renderCheetah({
+#     cheetah(
+#       data,
+#       editable = TRUE,
+#       rownames = FALSE,
+#       # Optional: let Tab also move the selection to the next cell.
+#       keyboard_options = list(moveCellOnTab = TRUE),
+#       columns = list(
+#         country = column_def(
+#           action = "autocomplete",
+#           auto_complete_opts = countries
+#         )
+#       )
+#     )
+#   })
+# 
+#   # Reactive: most recent single-cell edit.
+#   output$last_change <- renderPrint({
+#     req(input$grid_changed_value)
+#     input$grid_changed_value
+#   })
+# 
+#   # Reactive: the full grid as a data frame, updated after every edit.
+#   output$data_state <- renderPrint({
+#     req(get_grid_data("grid"))
+#   })
+# }
+# 
+# shinyApp(ui, server)
+
